@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>谛听·智能反诈平台 — 演示</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0f1a;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;overflow:hidden;height:100vh}
+.slides{position:relative;width:100%;height:100vh}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transform:scale(.96);transition:opacity .6s ease,transform .6s ease;pointer-events:none;padding:40px}
+.slide.active{opacity:1;transform:scale(1);pointer-events:auto}
+.slide-icon{font-size:5rem;margin-bottom:20px;filter:drop-shadow(0 0 30px rgba(110,231,255,.4))}
+.slide h1{font-size:2.8rem;font-weight:800;background:linear-gradient(135deg,#6ee7ff,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:12px;text-align:center}
+.slide h2{font-size:1.6rem;color:#cbd5e1;font-weight:600;margin-bottom:24px;text-align:center}
+.slide p{font-size:1.1rem;color:#94a3b8;max-width:600px;text-align:center;line-height:1.8}
+.tags{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:28px}
+.tag{background:rgba(110,231,255,.12);border:1px solid rgba(110,231,255,.25);border-radius:40px;padding:8px 20px;font-size:.9rem;color:#6ee7ff;font-weight:500}
+.progress{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}
+.progress-dot{width:10px;height:10px;border-radius:10px;background:rgba(255,255,255,.15);transition:all .3s}
+.progress-dot.active{background:#6ee7ff;width:28px}
+.timeline{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#6ee7ff,#a78bfa);transition:width .1s linear;z-index:10}
+.badge{display:inline-block;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:30px;padding:4px 14px;font-size:.8rem;color:#a78bfa;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="timeline" id="timeline"></div>
+<div class="progress" id="progress"></div>
+<div class="slides" id="slides"></div>
+
+<script>
+const slides = [
+  { icon:'🛡️', title:'谛听·智能反诈平台', subtitle:'AI 驱动的全场景反诈解决方案', text:'集成智能客服、场景模拟、研判举报、反诈课堂、闯关游戏五大模块，覆盖识诈、防诈、反诈全链路。', tags:['AI 大模型','实时分析','多端适配'], duration:10 },
+  { icon:'💬', title:'智能客服', subtitle:'AI 实时对话 · 精准识别诈骗', text:'输入可疑话术或上传截图/视频，AI 自动分析诈骗特征，即时给出劝阻建议与安全提醒。支持语音输入，让求助更便捷。', tags:['NLP 语义分析','多模态识别','语音交互'], duration:12 },
+  { icon:'🎭', title:'场景模拟', subtitle:'沉浸式反诈实训', text:'内置刷单返利、冒充公检法、杀猪盘等多种高发诈骗场景。随机挑战与闯关模式双轨并行，答对积分、答错重试，在实战中练就火眼金睛。', tags:['情景演练','积分激励','闯关进阶'], duration:12 },
+  { icon:'🔍', title:'智能研判 · 一键举报', subtitle:'风险链接与话术深度检测', text:'输入可疑链接或粘贴聊天记录，系统自动提取敏感词、检测域名风险、评估威胁等级。高风险内容支持一键跳转国家反诈中心举报。', tags:['URL 检测','敏感词匹配','风险评级'], duration:12 },
+  { icon:'📖', title:'反诈课堂', subtitle:'热点时事 · 法律法规 · 反诈贴士', text:'涵盖最高法典型案例、公安部专项行动、AI 换脸诈骗等最新资讯，以及《反电信网络诈骗法》全文解读，构建完整反诈知识体系。', tags:['法律条文','典型案例','防骗技巧'], duration:10 },
+  { icon:'🎯', title:'谛听 — 守护您的数字安全', subtitle:'识诈 · 防诈 · 反诈', text:'技术向善，AI 赋能。让每一次点击都安心，让每一笔交易都安全。', tags:['谛听·智能反诈平台'], duration:6 },
+];
+
+let current = 0;
+let elapsed = 0;
+const totalDuration = slides.reduce((s,x)=>s+x.duration,0);
+
+const slidesEl = document.getElementById('slides');
+const progressEl = document.getElementById('progress');
+const timelineEl = document.getElementById('timeline');
+
+slides.forEach((s,i)=>{
+  const div = document.createElement('div');
+  div.className = 'slide' + (i===0?' active':'');
+  div.innerHTML = `
+    <div class="badge">${i===0?'核心平台':i===5?'':'模块 '+(i)+' / 5'}</div>
+    <div class="slide-icon">${s.icon}</div>
+    <h1>${s.title}</h1>
+    <h2>${s.subtitle}</h2>
+    <p>${s.text}</p>
+    <div class="tags">${s.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+  `;
+  slidesEl.appendChild(div);
+  const dot = document.createElement('div');
+  dot.className = 'progress-dot' + (i===0?' active':'');
+  progressEl.appendChild(dot);
+});
+
+function goTo(i){
+  document.querySelectorAll('.slide').forEach((el,idx)=>el.classList.toggle('active',idx===i));
+  document.querySelectorAll('.progress-dot').forEach((el,idx)=>el.classList.toggle('active',idx===i));
+  current = i;
+}
+
+function tick(ms){
+  elapsed += ms;
+  timelineEl.style.width = (elapsed/totalDuration*100)+'%';
+  let acc = 0;
+  for(let i=0;i<slides.length;i++){
+    acc += slides[i].duration * 1000;
+    if(elapsed < acc){ if(i!==current) goTo(i); break; }
+  }
+  if(elapsed >= totalDuration){ elapsed = 0; goTo(0); }
+}
+
+let last = performance.now();
+function loop(now){
+  tick(now - last);
+  last = now;
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
